@@ -11,8 +11,14 @@ public class Progresssor : MonoBehaviour
     [SerializeField]
     private RectTransform shifter;
 
-    private Color nextColor;
     private List<Block> recentBlocks;
+
+    private Color currentColor; // current increment towards goal color
+    private Color goalColor; // current increment towards goal color
+    private int goalColorIndex; // goal color 
+
+    [SerializeField]
+    private Color[] colorOptions = new Color[3];
 
     // Start is called before the first frame update
     void Start()
@@ -24,7 +30,11 @@ public class Progresssor : MonoBehaviour
                 blocks[i, j] = null;
 
         recentBlocks = new List<Block>();
-        nextColor = Color.black;
+
+        // preliminary color setup
+        goalColorIndex = 1;
+        currentColor = colorOptions[0];
+        goalColor = colorOptions[goalColorIndex];
 
         // set up first block
         blocks[10, 10] = CreateBlock(10, 10);
@@ -37,7 +47,20 @@ public class Progresssor : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.UpArrow))
             ShiftUp();
         if (Input.GetKeyDown(KeyCode.RightArrow))
+        {
             Proliferate(3);
+            Proliferate(1);
+            PickNextColor();
+        }
+    }
+
+    private void PickNextColor()
+    {
+        currentColor = colorOptions[goalColorIndex];
+        goalColorIndex++;
+        if (goalColorIndex > colorOptions.Length - 1)
+            goalColorIndex = 0;
+        goalColor = colorOptions[goalColorIndex];
     }
 
     private Block CreateBlock(int row, int col)
@@ -45,10 +68,22 @@ public class Progresssor : MonoBehaviour
         GameObject blockObj = Instantiate(blockPrefab, shifter);
         blockObj.transform.localPosition = new Vector3(row * 36f, col * 36f);
         Block newBlock = blockObj.GetComponent<Block>();
+        if (blocks[row, col] != null)
+            RemoveBlock(row, col);
+
         blocks[row, col] = newBlock;
         newBlock.AssignIndexes(row, col);
-        newBlock.AssignColor(nextColor);
+        newBlock.AssignColor(currentColor);
         return newBlock;
+    }
+
+    private void RemoveBlock(int row, int col)
+    {
+        Block block = blocks[row, col];
+        blocks[row, col] = null;
+        if (recentBlocks.Contains(block))
+            recentBlocks.Remove(block);
+        Destroy(block.gameObject);
     }
 
     // UP ARROW ABILITY
@@ -60,7 +95,7 @@ public class Progresssor : MonoBehaviour
         {
             if (blocks[i, 19] != null)
             {
-                Destroy(blocks[i, 19].gameObject);
+                RemoveBlock(i, 19);
                 blocks[i, 19] = null;
             }
         }
@@ -87,7 +122,7 @@ public class Progresssor : MonoBehaviour
     {
         List<Block> newBlocks = new List<Block>(recentBlocks);
         recentBlocks.Clear();
-        nextColor = new Color(nextColor.r + 0.1f, nextColor.g, nextColor.b);
+        //nextColor = new Color(nextColor.r + 0.1f, nextColor.g, nextColor.b);
         foreach (Block newBlock in newBlocks)
         {
             // left
@@ -121,7 +156,8 @@ public class Progresssor : MonoBehaviour
             return;
 
         Block newBlock = CreateBlock(baseBlock.Row() + rowModifier, baseBlock.Col() + colModifier);
-        
+        newBlock.AssignColor(Color.Lerp(currentColor, goalColor, generationCounter / 3f));
+
         // last block in this chain
         if (generationCounter == 1)
             recentBlocks.Add(newBlock);
