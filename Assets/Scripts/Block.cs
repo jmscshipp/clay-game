@@ -7,6 +7,7 @@ public class Block : MonoBehaviour
 {
     private int row, col;
     private Image graphics;
+    private Color color;
 
     private void Awake()
     {
@@ -21,7 +22,13 @@ public class Block : MonoBehaviour
 
     public void AssignColor(Color color)
     {
-        graphics.color = color;
+        this.color = color;
+        graphics.color = Color.black;
+    }
+
+    public void ClearFromRecent()
+    {
+        graphics.color = this.color;
     }
 
     public int Row() => row;

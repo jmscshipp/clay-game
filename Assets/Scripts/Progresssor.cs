@@ -13,6 +13,7 @@ public class Progresssor : MonoBehaviour
 
     private List<Block> recentBlocks;
 
+    private float colorLerp;
     private Color currentColor; // current increment towards goal color
     private Color goalColor; // current increment towards goal color
     private int goalColorIndex; // goal color 
@@ -39,20 +40,21 @@ public class Progresssor : MonoBehaviour
         // set up first block
         CreateBlock(10, 10);
         recentBlocks.Add(blocks[10, 10]);
+        ProgressColorGradient();
     }
 
     // Update is called once per frame
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.LeftArrow))
-            Shift();
+            Split();
         if (Input.GetKeyDown(KeyCode.RightArrow))
         {
-            Proliferate(3);
-            Proliferate(1);
+            Proliferate(3, 0.1f);
+            Proliferate(1, 0.1f);
             PickNextColor();
         }
-        if (Input.GetKeyDown (KeyCode.UpArrow))
+        if (Input.GetKeyDown(KeyCode.UpArrow))
         {
             GridSpawn();
         }
@@ -60,6 +62,18 @@ public class Progresssor : MonoBehaviour
         {
             DeleteNPlace();
         }
+    }
+
+    private void ProgressColorGradient()
+    {
+        if (currentColor == goalColor)
+        {
+            colorLerp = 0f;
+            PickNextColor();
+            ProgressColorGradient();
+        }
+        colorLerp += 0.2f;
+        currentColor = Color.Lerp(currentColor, goalColor, colorLerp);
     }
 
     private void PickNextColor()
@@ -98,9 +112,17 @@ public class Progresssor : MonoBehaviour
         Destroy(block.gameObject);
     }
 
+    private void ClearRecent()
+    {
+        // returns blocks to real color instead of black
+        foreach (Block block in recentBlocks)
+            block.ClearFromRecent();
+        recentBlocks.Clear();
+    }
+
     // UP ARROW ABILITY
     // moves all blocks up one space
-    private void Shift()
+    private void Split()
     {
         // delete side columns of blocks
         for (int i = 0; i < 21; i++)
@@ -153,60 +175,82 @@ public class Progresssor : MonoBehaviour
         // delete center row
         for (int i = 0; i < 21; i++)
             RemoveBlock(10, i);
+
+        ClearRecent();
+
+        // first row
+        CreateBlock(6, 1);
+        CreateBlock(6, 9);
+        CreateBlock(6, 17);
+
+        // second row
+        CreateBlock(13, 3);
+        CreateBlock(13, 11);
+        CreateBlock(13, 19);
+
+        ProgressColorGradient();
     }
 
     // RIGHT ARROW ABILITY
     // grow blocks out from most recent blocks
-    private void Proliferate(int generations)
+    private void Proliferate(int generations, float delay = 0f)
     {
         List<Block> newBlocks = new List<Block>(recentBlocks);
-        recentBlocks.Clear();
+        ClearRecent();
         //nextColor = new Color(nextColor.r + 0.1f, nextColor.g, nextColor.b);
         foreach (Block newBlock in newBlocks)
         {
             // left
             if (newBlock.Row() > 0 && blocks[newBlock.Row() - 1, newBlock.Col()] == null)
-                ProliferateHelper(newBlock, -1, 0, generations, generations);
+                StartCoroutine(ProliferateHelper(newBlock, -1, 0, generations, generations, delay));
             // right
             if (newBlock.Row() < 20 && blocks[newBlock.Row() + 1, newBlock.Col()] == null)
-                ProliferateHelper(newBlock, 1, 0, generations, generations);
+                StartCoroutine(ProliferateHelper(newBlock, 1, 0, generations, generations, delay));
             // up
             if (newBlock.Col() < 20 && blocks[newBlock.Row(), newBlock.Col() + 1] == null)
-                ProliferateHelper(newBlock, 0, 1, generations, generations);
+                StartCoroutine(ProliferateHelper(newBlock, 0, 1, generations, generations, delay));
             // down
             if (newBlock.Col() > 0 && blocks[newBlock.Row(), newBlock.Col() - 1] == null)
-                ProliferateHelper(newBlock, 0, -1, generations, generations);
+                StartCoroutine(ProliferateHelper(newBlock, 0, -1, generations, generations, delay));
         }
+        ProgressColorGradient();
     }
 
-    private void ProliferateHelper(Block baseBlock, int rowModifier, int colModifier, float generationCounter, float totalGenerations)
+    private IEnumerator ProliferateHelper(Block baseBlock, int rowModifier, int colModifier, float generationCounter, float totalGenerations, float delay)
     {
         if (generationCounter == 0)
-            return;
+            yield break;
 
         // boundary checks based on direction
         if (rowModifier > 0 && baseBlock.Row() == 20)
-            return;
+            yield break;
         if (rowModifier < 0 && baseBlock.Row() == 0)
-            return;
+            yield break;
         if (colModifier > 0 && baseBlock.Col() == 20)
-            return;
+            yield break;
         if (colModifier < 0 && baseBlock.Col() == 0)
-            return;
+            yield break;
 
         Block newBlock = CreateBlock(baseBlock.Row() + rowModifier, baseBlock.Col() + colModifier, false);
-        newBlock.AssignColor(Color.Lerp(currentColor, goalColor, generationCounter / totalGenerations));
+        //newBlock.AssignColor(Color.Lerp(currentColor, goalColor, generationCounter / totalGenerations));
+        newBlock.AssignColor(currentColor);
+        newBlock.ClearFromRecent();
 
         // last block in this chain
         if (generationCounter == 1)
+        {
+            //newBlock.AssignColor(Color.Lerp(currentColor, goalColor, generationCounter / totalGenerations));
+            newBlock.AssignColor(currentColor);
             recentBlocks.Add(newBlock);
+        }
 
-        ProliferateHelper(newBlock, rowModifier, colModifier, --generationCounter, totalGenerations);
+        yield return new WaitForSeconds(delay);
+        StartCoroutine(ProliferateHelper(newBlock, rowModifier, colModifier, --generationCounter, totalGenerations, delay));
     }
 
     private void GridSpawn()
     {
-        recentBlocks.Clear();
+        ClearRecent();
 
         // first row
         CreateBlock(4, 4);
@@ -222,11 +266,13 @@ public class Progresssor : MonoBehaviour
         CreateBlock(4, 16);
         CreateBlock(10, 16);
         CreateBlock(16, 16);
+
+        ProgressColorGradient();
     }
 
     private void DeleteNPlace()
     {
-        recentBlocks.Clear();
+        ClearRecent();
 
         for (int i = 7; i < 14; i++)
         {
@@ -234,5 +280,7 @@ public class Progresssor : MonoBehaviour
                 RemoveBlock(i, j);
         }
         CreateBlock(10, 10);
+
+        ProgressColorGradient();
     }
 }
