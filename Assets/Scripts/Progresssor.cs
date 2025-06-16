@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Progresssor : MonoBehaviour
 {
-    private float distanceIncrement = 34.286f; // also the size of each block
+    private float distanceIncrement = 30.95f; // also the size of each block
     [SerializeField]
     private GameObject blockPrefab;
 

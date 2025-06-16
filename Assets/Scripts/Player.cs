@@ -32,6 +32,7 @@ public class Player : MonoBehaviour
 
     public void Reset()
     {
+        GameManager.Instance().Reset();
         progressor.ResetBlocks(blocks, recentBlocks);
         Begin();
     }
@@ -43,20 +44,26 @@ public class Player : MonoBehaviour
             return;
 
         if (Input.GetKeyDown(KeyCode.LeftArrow))
+        {
             progressor.Split(blocks, recentBlocks);
+            GameManager.Instance().MakeMove();
+        }
         if (Input.GetKeyDown(KeyCode.RightArrow))
         {
             progressor.Proliferate(blocks, recentBlocks, 3, true);
             progressor.Proliferate(blocks, recentBlocks, 1, true);
+            GameManager.Instance().MakeMove();
             //progressor.PickNextColor();
         }
         if (Input.GetKeyDown(KeyCode.UpArrow))
         {
             progressor.GridSpawn(blocks, recentBlocks);
+            GameManager.Instance().MakeMove();
         }
         if (Input.GetKeyDown(KeyCode.DownArrow))
         {
             progressor.DeleteNPlace(blocks, recentBlocks);
+            GameManager.Instance().MakeMove();
         }
         if (Input.GetKeyDown(KeyCode.R))
         {
