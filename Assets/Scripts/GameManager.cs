@@ -15,6 +15,8 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     private Animator canvasAnimator;
     private static GameManager instance;
+    private bool succeeded = false;
+    private bool failed = false;
 
     public static GameManager Instance()
     {
@@ -36,6 +38,19 @@ public class GameManager : MonoBehaviour
         StartRound();
     }
 
+    private void Update()
+    {
+        if (Input.anyKeyDown && succeeded)
+        {
+            StartRound();
+            succeeded = false;
+        }
+        else if (Input.anyKeyDown && failed)
+        {
+            Reset();
+            failed = false;
+        }
+    }
     void StartRound()
     {
         moves = puzzleMoveSize;
@@ -56,6 +71,7 @@ public class GameManager : MonoBehaviour
         moveDisplayText.text = moves + "/" + puzzleMoveSize;
         AudioManager.Instance().PlaySound("move");
         StartCoroutine(TextBumpAnim());
+        StartCoroutine(CheckSolution());
     }
 
     private IEnumerator TextBumpAnim()
@@ -63,5 +79,43 @@ public class GameManager : MonoBehaviour
         canvasAnimator.SetBool("bump", true);
         yield return new WaitForSeconds(0.1f);
         canvasAnimator.SetBool("bump", false);
+    }
+
+    private IEnumerator CheckSolution()
+    {
+        yield return new WaitForSeconds(1f);
+        Block[,] computerBlocks = computer.GetBlocks();
+        Block[,] playerBlocks = player.GetBlocks();
+
+        for (int i = 0; i < 21; i ++)
+        {
+            for (int j = 0; j < 21; j++)
+            {
+                // computer and player don't match for this block
+                if ((computerBlocks[i, j] != null && playerBlocks[i, j] == null)
+                    || (computerBlocks[i, j] == null && playerBlocks[i, j] != null))
+                {
+                    if (moves == 0)
+                        Fail();
+                    yield break;
+                }
+            }
+        }
+        // made it through all blocks without a mismatch!
+        Success();
+    }
+
+    private void Success()
+    {
+        player.StopPlayerInput();
+        succeeded = true;
+        AudioManager.Instance().PlaySound("success");
+    }
+
+    private void Fail()
+    {
+        player.StopPlayerInput();
+        failed = true;
+        AudioManager.Instance().PlaySound("fail");
     }
 }

@@ -30,12 +30,6 @@ public class Computer : MonoBehaviour
         recentBlocks = new List<Block>();
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
     public void CreatePuzzle(int moves)
     {
         progressor.SetColorMode(false);
@@ -86,8 +80,5 @@ public class Computer : MonoBehaviour
         }
     }
 
-    private void CheckSolution()
-    {
-
-    }
+    public Block[,] GetBlocks() => blocks;
 }

@@ -69,4 +69,11 @@ public class Player : MonoBehaviour
             Reset();
         }
     }
+
+    public void StopPlayerInput()
+    {
+        allowInput = false;
+    }
+
+    public Block[,] GetBlocks() => blocks;
 }
