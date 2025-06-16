@@ -50,11 +50,10 @@ public class Computer : MonoBehaviour
                 move = MakeMove(true);
             else
                 move = MakeMove(false);
-
+        
             if (move == MoveOption.Proliferate)
             {
                 progressor.Proliferate(blocks, recentBlocks, 3, false);
-                progressor.Proliferate(blocks, recentBlocks, 1, false);
             }
             if (move == MoveOption.Grid)
                 progressor.GridSpawn(blocks, recentBlocks);

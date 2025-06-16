@@ -24,23 +24,24 @@ public class Progresssor : MonoBehaviour
     [SerializeField]
     private Color[] computerColorOptions = new Color[3];
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        // preliminary color setup
-        goalColorIndex = 1;
-        currentColor = colorOptions[0];
-        goalColor = colorOptions[goalColorIndex];
-
-        ProgressColorGradient();
-    }
 
     public void SetColorMode(bool playerMode)
     {
         if (playerMode)
+        {
             colorOptions = playerColorOptions;
+            currentColor = colorOptions[0];
+            goalColorIndex = 1;
+            goalColor = colorOptions[goalColorIndex];
+        }
         else
+        {
             colorOptions = computerColorOptions;
+            currentColor = colorOptions[0];
+            goalColorIndex = 1;
+            goalColor = colorOptions[goalColorIndex];
+        }
+        ProgressColorGradient();
     }
 
     private void ProgressColorGradient()

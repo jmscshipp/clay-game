@@ -51,7 +51,6 @@ public class Player : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.RightArrow))
         {
             progressor.Proliferate(blocks, recentBlocks, 3, true);
-            progressor.Proliferate(blocks, recentBlocks, 1, true);
             GameManager.Instance().MakeMove();
             //progressor.PickNextColor();
         }
