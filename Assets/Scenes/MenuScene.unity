@@ -481,10 +481,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sounds:
   - name: move
-    clip: {fileID: 8300000, guid: 57ef52552300a624f877a836cd7fff25, type: 3}
+    clip: {fileID: 8300000, guid: d337a8b71b3f5e743a54216a2bc2043c, type: 3}
     volumeVariationLow: 0
     volumeVariationHigh: 0
-    baseVolume: 1
+    baseVolume: 0.5
     pitchVariationLow: 0
     pitchVariationHigh: 0
     basePitch: 1
