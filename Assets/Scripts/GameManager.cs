@@ -2,10 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-    private Player player;
+    protected Player player;
     private Computer computer;
 
     private int puzzleMoveSize = 2;
@@ -20,7 +21,8 @@ public class GameManager : MonoBehaviour
     private int succeededCounter = 0;
     private bool succeeded = false;
     private bool failed = false;
-
+    [SerializeField]
+    private bool playground = false;
     public static GameManager Instance()
     {
         return instance;
@@ -39,7 +41,10 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         Reset();
-        StartRound();
+        if (!playground)
+            StartRound();
+        else
+            player.Begin();
     }
 
     private void Update()
@@ -62,6 +67,10 @@ public class GameManager : MonoBehaviour
             Reset();
             player.Reset();
         }
+        else if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            SceneManager.LoadScene(0);
+        }
     }
     void StartRound()
     {
@@ -75,7 +84,7 @@ public class GameManager : MonoBehaviour
         moveDisplayText.text = moves + "/" + puzzleMoveSize;
     }
 
-    public void MakeMove()
+    public virtual void MakeMove()
     {
         moves--;
         moveDisplayText.text = moves + "/" + puzzleMoveSize;
@@ -85,7 +94,7 @@ public class GameManager : MonoBehaviour
         StartCoroutine(TextBumpAnim());
     }
 
-    private IEnumerator TextBumpAnim()
+    protected IEnumerator TextBumpAnim()
     {
         canvasAnimator.SetBool("bump", true);
         yield return new WaitForSeconds(0.1f);
