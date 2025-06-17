@@ -8,13 +8,16 @@ public class GameManager : MonoBehaviour
     private Player player;
     private Computer computer;
 
-    private int puzzleMoveSize = 4;
+    private int puzzleMoveSize = 2;
     private int moves;
     [SerializeField]
     private TMP_Text moveDisplayText;
     [SerializeField]
+    private TMP_Text levelCompleteText;
+    [SerializeField]
     private Animator canvasAnimator;
     private static GameManager instance;
+    private int succeededCounter = 0;
     private bool succeeded = false;
     private bool failed = false;
 
@@ -35,6 +38,7 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+        Reset();
         StartRound();
     }
 
@@ -42,19 +46,25 @@ public class GameManager : MonoBehaviour
     {
         if (Input.anyKeyDown && succeeded)
         {
+            Reset();
+            player.Reset();
             StartRound();
             succeeded = false;
         }
         else if (Input.anyKeyDown && failed)
         {
             Reset();
+            player.Reset();
             failed = false;
+        }
+        else if (Input.GetKeyDown(KeyCode.R))
+        {
+            Reset();
+            player.Reset();
         }
     }
     void StartRound()
     {
-        moves = puzzleMoveSize;
-        moveDisplayText.text = moves + "/" + puzzleMoveSize;
         computer.CreatePuzzle(puzzleMoveSize);
         player.Begin();
     }
@@ -69,9 +79,10 @@ public class GameManager : MonoBehaviour
     {
         moves--;
         moveDisplayText.text = moves + "/" + puzzleMoveSize;
+        player.AllowPlayerInput();
         AudioManager.Instance().PlaySound("move");
+        StartCoroutine(DelayedCheckSolution());
         StartCoroutine(TextBumpAnim());
-        StartCoroutine(CheckSolution());
     }
 
     private IEnumerator TextBumpAnim()
@@ -81,9 +92,14 @@ public class GameManager : MonoBehaviour
         canvasAnimator.SetBool("bump", false);
     }
 
-    private IEnumerator CheckSolution()
+    private IEnumerator DelayedCheckSolution()
     {
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(0.4f);
+        CheckSolution();
+    }
+
+    private void CheckSolution()
+    {
         Block[,] computerBlocks = computer.GetBlocks();
         Block[,] playerBlocks = player.GetBlocks();
 
@@ -95,9 +111,10 @@ public class GameManager : MonoBehaviour
                 if ((computerBlocks[i, j] != null && playerBlocks[i, j] == null)
                     || (computerBlocks[i, j] == null && playerBlocks[i, j] != null))
                 {
+                    player.AllowPlayerInput(true);
                     if (moves == 0)
                         Fail();
-                    yield break;
+                    return;
                 }
             }
         }
@@ -107,14 +124,26 @@ public class GameManager : MonoBehaviour
 
     private void Success()
     {
-        player.StopPlayerInput();
+        if (succeededCounter > 3)
+        {
+            succeededCounter = -1;
+            puzzleMoveSize++;
+            levelCompleteText.text = levelCompleteText.text.Remove(levelCompleteText.text.Length - 4, 4);
+            levelCompleteText.text = $"{levelCompleteText.text}<color=#DDA853>*</color>";
+        }
+        else
+            levelCompleteText.text = levelCompleteText.text + "*";
+
+        player.AllowPlayerInput();
         succeeded = true;
         AudioManager.Instance().PlaySound("success");
+        succeededCounter++;
     }
 
     private void Fail()
     {
-        player.StopPlayerInput();
+        Debug.Log("FAILED");
+        player.AllowPlayerInput();
         failed = true;
         AudioManager.Instance().PlaySound("fail");
     }

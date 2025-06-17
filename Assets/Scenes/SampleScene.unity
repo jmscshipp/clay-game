@@ -373,6 +373,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveDisplayText: {fileID: 1734360726}
+  levelCompleteText: {fileID: 1156259985}
   canvasAnimator: {fileID: 1180168891}
 --- !u!114 &834237596
 MonoBehaviour:
@@ -396,18 +397,18 @@ MonoBehaviour:
     pitchVariationHigh: 0
     basePitch: 1
   - name: success
-    clip: {fileID: 8300000, guid: 9cfc3ba57027af74ba54624b95fbe820, type: 3}
+    clip: {fileID: 8300000, guid: 0d23ce085ff92e8478257a2372246fcd, type: 3}
     volumeVariationLow: 0
     volumeVariationHigh: 0
-    baseVolume: 1
+    baseVolume: 0.5
     pitchVariationLow: 0
     pitchVariationHigh: 0
     basePitch: 1
   - name: fail
-    clip: {fileID: 8300000, guid: 71be1ed2aa0d63c40bbc7083b514899e, type: 3}
+    clip: {fileID: 8300000, guid: 36282fdacfb3a6d48b81d0b3af3d8499, type: 3}
     volumeVariationLow: 0
     volumeVariationHigh: 0
-    baseVolume: 1
+    baseVolume: 0.5
     pitchVariationLow: 0
     pitchVariationHigh: 0
     basePitch: 1
@@ -470,7 +471,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: '****'
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 2e498d1c8094910479dc3e1b768306a4, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 2e498d1c8094910479dc3e1b768306a4, type: 2}

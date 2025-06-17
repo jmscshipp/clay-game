@@ -173,7 +173,7 @@ public class Progresssor : MonoBehaviour
 
     // RIGHT ARROW ABILITY
     // grow blocks out from most recent blocks
-    public void Proliferate(Block[,] blocks, List<Block> recentBlocks, int generations, bool player)
+    public void Grow(Block[,] blocks, List<Block> recentBlocks, int generations, bool player)
     {
         List<Block> newBlocks = new List<Block>(recentBlocks);
         ClearRecent(recentBlocks);
@@ -183,16 +183,16 @@ public class Progresssor : MonoBehaviour
             {
                 // left
                 if (newBlock.Row() > 0 && blocks[newBlock.Row() - 1, newBlock.Col()] == null)
-                    StartCoroutine(ProliferateHelper(blocks, recentBlocks, newBlock, -1, 0, generations, generations, 0.1f));
+                    StartCoroutine(GrowHelper(blocks, recentBlocks, newBlock, -1, 0, generations, generations, 0.1f));
                 // right
                 if (newBlock.Row() < 20 && blocks[newBlock.Row() + 1, newBlock.Col()] == null)
-                    StartCoroutine(ProliferateHelper(blocks, recentBlocks, newBlock, 1, 0, generations, generations, 0.1f));
+                    StartCoroutine(GrowHelper(blocks, recentBlocks, newBlock, 1, 0, generations, generations, 0.1f));
                 // up
                 if (newBlock.Col() < 20 && blocks[newBlock.Row(), newBlock.Col() + 1] == null)
-                    StartCoroutine(ProliferateHelper(blocks, recentBlocks, newBlock, 0, 1, generations, generations, 0.1f));
+                    StartCoroutine(GrowHelper(blocks, recentBlocks, newBlock, 0, 1, generations, generations, 0.1f));
                 // down
                 if (newBlock.Col() > 0 && blocks[newBlock.Row(), newBlock.Col() - 1] == null)
-                    StartCoroutine(ProliferateHelper(blocks, recentBlocks, newBlock, 0, -1, generations, generations, 0.1f));
+                    StartCoroutine(GrowHelper(blocks, recentBlocks, newBlock, 0, -1, generations, generations, 0.1f));
             }
         }
         else
@@ -201,16 +201,16 @@ public class Progresssor : MonoBehaviour
             {
                 // left
                 if (newBlock.Row() > 0 && blocks[newBlock.Row() - 1, newBlock.Col()] == null)
-                    ProliferateHelperReg(blocks, recentBlocks, newBlock, -1, 0, generations, generations);
+                    GrowHelperReg(blocks, recentBlocks, newBlock, -1, 0, generations, generations);
                 // right
                 if (newBlock.Row() < 20 && blocks[newBlock.Row() + 1, newBlock.Col()] == null)
-                    ProliferateHelperReg(blocks, recentBlocks, newBlock, 1, 0, generations, generations);
+                    GrowHelperReg(blocks, recentBlocks, newBlock, 1, 0, generations, generations);
                 // up
                 if (newBlock.Col() < 20 && blocks[newBlock.Row(), newBlock.Col() + 1] == null)
-                    ProliferateHelperReg(blocks, recentBlocks, newBlock, 0, 1, generations, generations);
+                    GrowHelperReg(blocks, recentBlocks, newBlock, 0, 1, generations, generations);
                 // down
                 if (newBlock.Col() > 0 && blocks[newBlock.Row(), newBlock.Col() - 1] == null)
-                    ProliferateHelperReg(blocks, recentBlocks, newBlock, 0, -1, generations, generations);
+                    GrowHelperReg(blocks, recentBlocks, newBlock, 0, -1, generations, generations);
             }
         }
         //nextColor = new Color(nextColor.r + 0.1f, nextColor.g, nextColor.b);
@@ -218,7 +218,7 @@ public class Progresssor : MonoBehaviour
         ProgressColorGradient();
     }
 
-    private IEnumerator ProliferateHelper(Block[,] blocks, List<Block> recentBlocks, Block baseBlock, int rowModifier, int colModifier, float generationCounter, float totalGenerations, float delay)
+    private IEnumerator GrowHelper(Block[,] blocks, List<Block> recentBlocks, Block baseBlock, int rowModifier, int colModifier, float generationCounter, float totalGenerations, float delay)
     {
         if (generationCounter == 0)
             yield break;
@@ -247,11 +247,11 @@ public class Progresssor : MonoBehaviour
         }
 
         yield return new WaitForSeconds(delay);
-        StartCoroutine(ProliferateHelper(blocks, recentBlocks, newBlock, rowModifier, colModifier, --generationCounter, totalGenerations, delay));
+        StartCoroutine(GrowHelper(blocks, recentBlocks, newBlock, rowModifier, colModifier, --generationCounter, totalGenerations, delay));
     }
 
     // non-coroutine version without delays, for computer use
-    private void ProliferateHelperReg(Block[,] blocks, List<Block> recentBlocks, Block baseBlock, int rowModifier, int colModifier, float generationCounter, float totalGenerations)
+    private void GrowHelperReg(Block[,] blocks, List<Block> recentBlocks, Block baseBlock, int rowModifier, int colModifier, float generationCounter, float totalGenerations)
     {
         if (generationCounter == 0)
             return;
@@ -279,9 +279,9 @@ public class Progresssor : MonoBehaviour
             recentBlocks.Add(newBlock);
         }
 
-        ProliferateHelperReg(blocks, recentBlocks, newBlock, rowModifier, colModifier, --generationCounter, totalGenerations);
+        GrowHelperReg(blocks, recentBlocks, newBlock, rowModifier, colModifier, --generationCounter, totalGenerations);
     }
-    public void GridSpawn(Block[,] blocks, List<Block> recentBlocks)
+    public void Grid(Block[,] blocks, List<Block> recentBlocks)
     {
         ClearRecent(recentBlocks);
 
@@ -303,7 +303,7 @@ public class Progresssor : MonoBehaviour
         ProgressColorGradient();
     }
 
-    public void DeleteNPlace(Block[,] blocks, List<Block> recentBlocks)
+    public void Bullseye(Block[,] blocks, List<Block> recentBlocks)
     {
         ClearRecent(recentBlocks);
 

@@ -18,7 +18,7 @@ public class Computer : MonoBehaviour
     private MoveOption lastMoveOption;
     private Block[,] blocks;
     private List<Block> recentBlocks;
-
+    private List<MoveOption> lastPuzzle;
     private void Awake()
     {
         // create empty block array
@@ -28,38 +28,74 @@ public class Computer : MonoBehaviour
                 blocks[i, j] = null;
 
         recentBlocks = new List<Block>();
+        lastPuzzle = new List<MoveOption>();
     }
 
     public void CreatePuzzle(int moves)
     {
+        lastMoveOption = MoveOption.None;
         progressor.SetColorMode(false);
+        progressor.ResetBlocks(blocks, recentBlocks);
         // set up first block
         progressor.CreateBlock(blocks, recentBlocks, 10, 10);
 
+        List<MoveOption> newPuzzle = new List<MoveOption>();
         for (int i = 0; i < moves; i++)
         {
-            Debug.Log(i);
             MoveOption move;
             if (i == 0)
-                move = MakeMove(true);
+                move = MakeMove(true, moves);
             else
-                move = MakeMove(false);
-        
+                move = MakeMove(false, moves);
+
             if (move == MoveOption.Proliferate)
-            {
-                progressor.Proliferate(blocks, recentBlocks, 3, false);
-            }
-            if (move == MoveOption.Grid)
-                progressor.GridSpawn(blocks, recentBlocks);
-            if (move == MoveOption.Split)
+                progressor.Grow(blocks, recentBlocks, 3, false);
+            else if (move == MoveOption.Grid)
+                progressor.Grid(blocks, recentBlocks);
+            else if (move == MoveOption.Split)
                 progressor.Split(blocks, recentBlocks);
-            if (move == MoveOption.Bullseye)
-                progressor.DeleteNPlace(blocks, recentBlocks);
+            else if (move == MoveOption.Bullseye)
+                progressor.Bullseye(blocks, recentBlocks);
+            newPuzzle.Add(move);
         }
-        progressor.ClearRecent(recentBlocks);
+        Debug.Log("     lastPuzzle");
+        string puzzlestr = "";
+        foreach (MoveOption move in lastPuzzle)
+        {
+            puzzlestr = puzzlestr + ", " + move.ToString();
+        }
+        Debug.Log(puzzlestr);
+        puzzlestr = "";
+        Debug.Log("     newPuzzle");
+        foreach (MoveOption move in newPuzzle)
+        {
+            puzzlestr = puzzlestr + ", " + move.ToString();
+        }
+        Debug.Log(puzzlestr);
+
+        if (lastPuzzle.Count != newPuzzle.Count)
+        {
+            lastPuzzle = newPuzzle;
+            progressor.ClearRecent(recentBlocks);
+            return;
+        }
+
+        // if we just did this exact puzzle, make a different one
+        for (int i = 0; i < lastPuzzle.Count; i++)
+        {
+            if (lastPuzzle[i] != newPuzzle[i])
+            {
+                lastPuzzle = newPuzzle;
+                progressor.ClearRecent(recentBlocks);
+                return;
+            }
+        }
+
+        // if moves from last puzzle are the same as this one, remake it
+        CreatePuzzle(moves);
     }
 
-    private MoveOption MakeMove(bool firstTurn)
+    private MoveOption MakeMove(bool firstTurn, int moveNum)
     {
         MoveOption nextMoveOption;
         if (firstTurn)
@@ -70,12 +106,14 @@ public class Computer : MonoBehaviour
         else
             nextMoveOption = (MoveOption)Mathf.Round(Random.Range(1f, 4f));
 
+        // prevent second move from being bullseye in 2 move puzzles
+        if (moveNum == 2 && nextMoveOption == MoveOption.Bullseye && lastMoveOption != MoveOption.None)
+            return MakeMove(firstTurn, moveNum);
         if (nextMoveOption != MoveOption.Proliferate && nextMoveOption == lastMoveOption)
-            return MakeMove(firstTurn);
+            return MakeMove(firstTurn, moveNum);
         else
         {
             lastMoveOption = nextMoveOption;
-            Debug.Log(lastMoveOption.ToString());
             return nextMoveOption;
         }
     }

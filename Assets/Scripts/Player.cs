@@ -50,18 +50,19 @@ public class Player : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.RightArrow))
         {
-            progressor.Proliferate(blocks, recentBlocks, 3, true);
+            progressor.Grow(blocks, recentBlocks, 3, true);
+            WaitForMove();
             GameManager.Instance().MakeMove();
             //progressor.PickNextColor();
         }
         if (Input.GetKeyDown(KeyCode.UpArrow))
         {
-            progressor.GridSpawn(blocks, recentBlocks);
+            progressor.Grid(blocks, recentBlocks);
             GameManager.Instance().MakeMove();
         }
         if (Input.GetKeyDown(KeyCode.DownArrow))
         {
-            progressor.DeleteNPlace(blocks, recentBlocks);
+            progressor.Bullseye(blocks, recentBlocks);
             GameManager.Instance().MakeMove();
         }
         if (Input.GetKeyDown(KeyCode.R))
@@ -70,9 +71,16 @@ public class Player : MonoBehaviour
         }
     }
 
-    public void StopPlayerInput()
+    public void AllowPlayerInput(bool allow = false)
+    {
+        allowInput = allow;
+    }
+
+    public IEnumerator WaitForMove()
     {
         allowInput = false;
+        yield return new WaitForSeconds(0.3f);
+        allowInput = true;
     }
 
     public Block[,] GetBlocks() => blocks;
