@@ -65,17 +65,17 @@ public class Menu : MonoBehaviour
         StartCoroutine(DelayedGrow());
     }
 
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+            Application.Quit();
+    }
+
     private IEnumerator DelayedGrow()
     {
         yield return new WaitForSeconds(2f);
         AudioManager.Instance().PlaySound("success");
         progressor.Grow(blocks, recentBlocks, 3, true);
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 
     public void LoadChallengeScene()
