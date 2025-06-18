@@ -31,6 +31,21 @@ public class Block : MonoBehaviour
         graphics.color = this.color;
     }
 
+    public void Dissapear()
+    {
+        StartCoroutine(Fade());
+    }
+
+    private IEnumerator Fade()
+    {
+        for (int i = 0; i < 2; i++)
+        {
+            graphics.color = new Color(graphics.color.r, graphics.color.g, graphics.color.b, graphics.color.a - 0.34f);
+            yield return new WaitForSeconds(0.1f);
+        }
+        Destroy(this.gameObject);
+    }
+
     public int Row() => row;
     public int Col() => col;
 }

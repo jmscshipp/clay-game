@@ -376,6 +376,8 @@ MonoBehaviour:
   levelCompleteText: {fileID: 1156259985}
   canvasAnimator: {fileID: 1180168891}
   playground: 0
+  markerPrefab: {fileID: 1225496815593401663, guid: cdda1283137c2324a83bfb60f1a8b1cd, type: 3}
+  shifter: {fileID: 232671013}
 --- !u!114 &834237596
 MonoBehaviour:
   m_ObjectHideFlags: 0

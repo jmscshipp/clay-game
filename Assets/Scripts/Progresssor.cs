@@ -81,7 +81,7 @@ public class Progresssor : MonoBehaviour
         return newBlock;
     }
 
-    public void RemoveBlock(Block[,] blocks, List<Block> recentBlocks, int row, int col)
+    public void RemoveBlock(Block[,] blocks, List<Block> recentBlocks, int row, int col, bool fade = false)
     {
         if (blocks[row, col] == null)
             return;
@@ -89,7 +89,10 @@ public class Progresssor : MonoBehaviour
         blocks[row, col] = null;
         if (recentBlocks.Contains(block))
             recentBlocks.Remove(block);
-        Destroy(block.gameObject);
+        if (fade)
+            block.Dissapear();
+        else
+            Destroy(block.gameObject);
     }
 
     public void ClearRecent(List<Block> recentBlocks)
@@ -310,7 +313,7 @@ public class Progresssor : MonoBehaviour
         for (int i = 7; i < 14; i++)
         {
             for (int j = 7; j < 14; j++)
-                RemoveBlock(blocks, recentBlocks, i, j);
+                RemoveBlock(blocks, recentBlocks, i, j, true); // fade version of remove
         }
         CreateBlock(blocks, recentBlocks, 10, 10);
 

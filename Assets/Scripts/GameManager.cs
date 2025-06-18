@@ -23,6 +23,13 @@ public class GameManager : MonoBehaviour
     private bool failed = false;
     [SerializeField]
     private bool playground = false;
+
+    [SerializeField]
+    private GameObject markerPrefab;
+    [SerializeField]
+    private RectTransform shifter;
+    private List<GameObject> markers = new List<GameObject>();
+
     public static GameManager Instance()
     {
         return instance;
@@ -58,6 +65,9 @@ public class GameManager : MonoBehaviour
         }
         else if (Input.anyKeyDown && failed)
         {
+            for (int i = 0; i < markers.Count; i++)
+                Destroy(markers[i]);
+            markers.Clear();
             Reset();
             player.Reset();
             failed = false;
@@ -154,6 +164,18 @@ public class GameManager : MonoBehaviour
         Debug.Log("FAILED");
         player.AllowPlayerInput();
         failed = true;
+
+        // display markers
+        Block[,] computerBlocks = computer.GetBlocks();
+        for (int i = 0; i < 21; i++)
+        {
+            for (int j = 0; j < 21; j++)
+            {
+                if (computerBlocks[i, j] != null)
+                    markers.Add(Instantiate(markerPrefab, computerBlocks[i, j].transform.position, Quaternion.identity, shifter));
+            }
+        }
+
         AudioManager.Instance().PlaySound("fail");
     }
 }
